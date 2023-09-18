@@ -6,13 +6,20 @@ function fn() {
   }
   var config = {
     env: env,
-    myVarName: 'someValue'
-  }
+    apiUrl: 'http://localhost:8080/api/',
+  };
   if (env == 'dev') {
-    // customize
-    // e.g. config.foo = 'bar';
-  } else if (env == 'e2e') {
-    // customize
+    config.adminUsername = 'admin';
+    config.adminPassword = 'admin';
+  } else if (env == 'prod') {
+    config.adminUsername = 'prod-user';
+    config.adminPassword = 'prod-password';
   }
+
+  var authToken = karate.callSingle(
+    'classpath:helpers/CreateAuthToken.feature',
+    config
+  ).token;
+  karate.configure('headers', { Authorization: 'Bearer ' + authToken });
   return config;
 }

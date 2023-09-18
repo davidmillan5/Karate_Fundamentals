@@ -1,15 +1,7 @@
 Feature: Test on the globomantics Categories API
 
 Background:
-  * url 'http://localhost:8080/api/'
-
-  Given path 'authenticate'
-  And request '{"username":"admin","password":"admin"}'
-  And header Content-Type = 'application/json'
-  When method Post 
-  Then status 200
-  * def token = response.token
-  * print 'Value of token: ' + token
+  * url apiUrl
 
 Scenario: Get all categories
   Given path 'category'
@@ -18,9 +10,8 @@ Scenario: Get all categories
 
 Scenario: Create a Category
   Given path 'category'
-  And header Authorization = 'Bearer ' + token
   And header Content-Type = 'application/json'
-  And request '{"name":"My new category"}'
+  And request '{"name":"My 3rd category"}'
   When method Post 
   Then status 200
 
@@ -31,7 +22,6 @@ Scenario: Create, Update and Delete Category
 
   #Create Category
   Given path 'category'
-  And header Authorization = 'Bearer ' + token
   And header Content-Type = 'application/json'
   And request '{"name": "' + categoryName + '"}'
   When method Post 
@@ -47,7 +37,6 @@ Scenario: Create, Update and Delete Category
 
   # Update category
   Given path 'category', categoryId 
-  And header Authorization = 'Bearer ' + token
   And header Content-Type = 'application/json'
   And request '{"name": "' + categoryNameUpdated + '"}'
   When method Put 
@@ -63,7 +52,6 @@ Scenario: Create, Update and Delete Category
   # Delete Category
 
   Given path 'category', categoryId 
-  And header Authorization = 'Bearer ' + token
   And header Content-Type = 'application/json'
   When method Delete
   Then status 200

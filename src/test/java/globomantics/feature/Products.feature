@@ -1,43 +1,37 @@
+@debug
 Feature: Test on the Globomantics Products API
 
 Background:
-  * url 'http://localhost:8080/api/'
+  * url apiUrl
+  * def productRequestBody = read('classpath:globomantics/data/newProduct.json')
+  * callonce read('classpath:helpers/ProductSchema.feature')
 
-  Given path 'authenticate'
-  And request '{"username":"admin","password":"admin"}'
-  And header Content-Type = 'application/json'
-  When method Post 
-  Then status 200
-  * def token = response.token
-  * print 'Value of token: ' + token
 
 Scenario: Get all Products
   Given path 'product'
   When method Get
   Then status 200
 
+  And match response[0].name == 'Vintage Minature Car' 
+
+  And match response[0].createdAt contains '2020'
+
+  And match each response == productSchema
+
 
 Scenario: Create and Delete Product
   * def productName = 'Fast train'
-  * def productJSON = 
-  """
-    {
-      "name": #(productName),
-      "description": "A toy train with 3 carriages",
-      "price": "19.99",
-      "categoryId": 1,
-      "inStock": true
-    }
-  """
+  * set productRequestBody.name = productName
+
 
   #Create a Product
   Given path 'product'
-  And header Authorization = 'Bearer ' + token
   And header Content-Type = 'application/json'
-  And request productJSON
+  And request productRequestBody
   When method Post 
   Then status 200
   And match response.name == productName
+  And match response == productSchema
   * def productId = response.id
 
   # Get single product
@@ -46,10 +40,10 @@ Scenario: Create and Delete Product
   Then status 200
   And match response.id == productId 
   And match response.name == productName
+  And match response == productSchema
 
   #Delete product
   Given path 'product', productId 
-  And header Authorization = 'Bearer ' + token 
   And header Content-Type = 'application/json'
   When method delete
   Then status 200 
@@ -57,25 +51,17 @@ Scenario: Create and Delete Product
 
 Scenario: Update Product
   * def updatedProductName = 'Updated fast train'
+  * set productRequestBody.name = updatedProductName
 
-  * def updatedProductJSON =
-  """
-    {
-      "name": #(updatedProductName),
-      "description":  "A toy train with 3 carriages",
-      "price": "29.99",
-      "categoryId": 2,
-      "inStock": true
-    }
-  """
+
 
   Given path 'product',10
-  And header Authorization = 'Bearer ' + token
   And header Content-type = 'application/json'
-  And request updatedProductJSON
+  And request productRequestBody
   When method Put 
   Then status 200
   And match response.name == updatedProductName
+  And match response == productSchema
 
 
 
@@ -87,5 +73,7 @@ Scenario: Query Parameters
   Then status 200
   And match each response contains {"categoryId": '1'}
   And match each response contains {"categoryId": #(categoryId)}
+  And match each response..categoryId == categoryId
+  And match each response == productSchema
 
 
