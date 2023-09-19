@@ -1,4 +1,4 @@
-@debug
+
 Feature: Test on the Globomantics Products API
 
 Background:
